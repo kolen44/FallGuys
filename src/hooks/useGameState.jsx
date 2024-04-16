@@ -73,7 +73,11 @@ export const GameStateProvider = ({ children }) => {
 	}
 
 	return (
-		<GameStateContext.Provider value={{}}>{children}</GameStateContext.Provider>
+		<GameStateContext.Provider
+			value={{ stage, timer, players, host, startGame }}
+		>
+			{children}
+		</GameStateContext.Provider>
 	)
 }
 
