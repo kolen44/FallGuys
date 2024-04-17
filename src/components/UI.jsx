@@ -3,7 +3,7 @@ import { useGameState } from '../hooks/useGameState'
 
 export const UI = () => {
 	const { audioEnabled, setAudioEnabled } = useAudioManager()
-	const { stage, timer, host, startGame } = useGameState()
+	const { stage, timer, host, startGame, players } = useGameState()
 
 	return (
 		<main
@@ -11,6 +11,21 @@ export const UI = () => {
 				stage === 'lobby' ? 'bg-black-40' : 'bg-transparent'
 			} transition-colors duration-1000`}
 		>
+			<div className='absolute top-28 left-4 md:top-4 md:-translate-x-1/2 md:left-1/2 flex flex-col md:flex-row'>
+				{players.map(p => (
+					<div key={p.state.id} className='flex flex-col items-center'>
+						<img
+							className={`w-12 h-12 rounded-full ${
+								p.state.getState('dead') ? 'filter grayscale' : ''
+							}`}
+							src={p.state.state.profile.photo}
+						/>
+						<p className='text-white max-w-20 truncate'>
+							{p.state.state.profile.name}
+						</p>
+					</div>
+				))}
+			</div>
 			{timer >= 0 && (
 				<h2 className='absolute right-4 top-4 text-5xl text-white font-black'>
 					{timer}

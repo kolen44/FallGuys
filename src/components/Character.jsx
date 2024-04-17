@@ -39,7 +39,7 @@ export function Character({
 					fontSize={0.5}
 					anchorX='center'
 					anchorY='middle'
-					font='fonts/PaytooneOne-Regular.ttf'
+					font='fonts/PaytoneOne-Regular.ttf'
 				>
 					{name}
 					<meshBasicMaterial color='white' />
