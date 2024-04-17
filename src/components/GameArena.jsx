@@ -1,3 +1,5 @@
+import { RPC } from 'playroomkit'
+import { useState } from 'react'
 import { Hexagon } from './Hexagon'
 
 export const HEX_X_SPACING = 2.25
@@ -14,6 +16,13 @@ export const FLOORS = [
 ]
 
 export default function GameArena() {
+	const [hexagonHit, setHexagonHit] = useState({})
+	RPC.register('hexagonHit', data => {
+		setHexagonHit(prev => ({
+			...prev,
+			[data.hexagonKey]: true,
+		}))
+	})
 	return (
 		<group
 			position-x={-((NB_COLUMNS - 1) / 2) * HEX_X_SPACING}
@@ -32,6 +41,15 @@ export default function GameArena() {
 									key={columnIndex}
 									position-x={columnIndex * HEX_X_SPACING}
 									color={floor.color}
+									onHit={() => {
+										const hexagonKey = `${floorIndex}-${rowIndex}-${columnIndex}`
+										setHexagonHit(prev => ({
+											...prev,
+											[hexagonKey]: true,
+										}))
+										RPC.call('hexagonHit', { hexagonKey }, RPC.Mode.ALL)
+									}}
+									hit={hexagonHit[`${floorIndex}-${rowIndex}-${columnIndex}`]}
 								/>
 							))}
 						</group>
