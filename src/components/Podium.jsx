@@ -9,7 +9,7 @@ export const Podium = () => {
 	const { winner } = useGameState()
 	const winnerProfile = winner || getState('lastDead')
 	const camera = useThree(state => state.camera)
-	useEffect(() => {
+	useEffect(async () => {
 		camera.position.set(5, 4, 12)
 		camera.lookAt(0, 2, 0)
 		return () => {

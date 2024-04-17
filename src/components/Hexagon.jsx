@@ -15,12 +15,12 @@ export function Hexagon({ color, hit, onHit, ...props }) {
 	const hexagonMaterial = useRef()
 	const { nodes, materials } = useGLTF('/models/hexagon.glb', 'draco/gltf/')
 	const [disabled, setDisabled] = useState(false)
-	const randomizedColor = useMemo(() => {
+	const randomizedColor = useMemo(async () => {
 		const alteredColor = new Color(color)
 		alteredColor.multiplyScalar(randFloat(0.5, 1.2))
 		return alteredColor
 	}, [color])
-	useFrame((_, delta) => {
+	useFrame(async (_, delta) => {
 		if (hit && !disabled) {
 			hexagonMaterial.current.opacity = MathUtils.lerp(
 				hexagonMaterial.current.opacity,
@@ -30,7 +30,7 @@ export function Hexagon({ color, hit, onHit, ...props }) {
 		}
 	})
 
-	useEffect(() => {
+	useEffect(async () => {
 		if (hit) {
 			setTimeout(() => {
 				setDisabled(true)

@@ -17,7 +17,7 @@ export const FLOORS = [
 
 export default function GameArena() {
 	const [hexagonHit, setHexagonHit] = useState({})
-	RPC.register('hexagonHit', data => {
+	RPC.register('hexagonHit', async data => {
 		setHexagonHit(prev => ({
 			...prev,
 			[data.hexagonKey]: true,

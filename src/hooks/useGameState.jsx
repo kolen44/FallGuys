@@ -38,7 +38,7 @@ export const GameStateProvider = ({ children }) => {
 	const host = isHost()
 
 	const isInit = useRef(false)
-	useEffect(() => {
+	useEffect(async () => {
 		if (isInit.current) {
 			return
 		}
@@ -71,7 +71,7 @@ export const GameStateProvider = ({ children }) => {
 		})
 	}, [])
 
-	useEffect(() => {
+	useEffect(async () => {
 		if (!host || stage === 'lobby') {
 			return
 		}

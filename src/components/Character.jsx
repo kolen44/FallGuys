@@ -20,13 +20,13 @@ export function Character({
 	const clone = useMemo(() => SkeletonUtils.clone(scene), [scene])
 	const { nodes, materials } = useGraph(clone)
 	const { actions } = useAnimations(animations, group)
-	useEffect(() => {
+	useEffect(async () => {
 		actions[animation]?.reset().fadeIn(0.1).play()
 		return () => actions[animation]?.fadeOut(0.1)
 	}, [animation])
 
 	const textRef = useRef()
-	useFrame(({ camera }) => {
+	useFrame(async ({ camera }) => {
 		if (textRef.current) {
 			textRef.current.lookAt(camera.position)
 		}

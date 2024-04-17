@@ -6,6 +6,8 @@ import './index.css'
 
 await insertCoin({
 	skipLobby: true,
+	gameId: 'n3Wzy1iAYECqJzpXkmeM',
+	discord: true,
 }).then(() =>
 	ReactDOM.createRoot(document.getElementById('root')).render(
 		<React.StrictMode>

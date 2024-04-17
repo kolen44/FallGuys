@@ -35,7 +35,7 @@ export const CharacterController = ({
 	const cameraPosition = useRef()
 	const cameraLookAt = useRef()
 
-	useFrame(({ camera }) => {
+	useFrame(async ({ camera }) => {
 		if (stage === 'lobby' || stage !== 'game') {
 			return
 		}
