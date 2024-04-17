@@ -5,6 +5,13 @@ import {
 	useMultiplayerState,
 } from 'playroomkit'
 import { createContext, useContext, useEffect, useRef, useState } from 'react'
+import { randFloat } from 'three/src/math/MathUtils'
+import {
+	HEX_X_SPACING,
+	HEX_Z_SPACING,
+	NB_COLUMNS,
+	NB_ROWS,
+} from '../components/GameArena'
 
 const GameStateContext = createContext()
 
@@ -23,6 +30,7 @@ const TIMER_STAGE = {
 }
 
 export const GameStateProvider = ({ children }) => {
+	const [winner, setWinner] = useMultiplayerState('winner', null)
 	const [stage, setStage] = useMultiplayerState('gameStage', 'lobby')
 	const [timer, setTimer] = useMultiplayerState('timer', TIMER_STAGE.lobby)
 	const [players, setPlayers] = useState([])
@@ -42,6 +50,20 @@ export const GameStateProvider = ({ children }) => {
 			})
 			const newPlayer = { state, controls }
 
+			if (host) {
+				state.setState('dead', stage === 'game')
+				state.setState('startingPos', {
+					x: randFloat(
+						(-(NB_COLUMNS - 1) * HEX_X_SPACING) / 2,
+						((NB_COLUMNS - 1) * HEX_X_SPACING) / 2
+					),
+					Z: randFloat(
+						(-(NB_ROWS - 1) * HEX_Z_SPACING) / 2,
+						((NB_ROWS - 1) * HEX_Z_SPACING) / 2
+					),
+				})
+			}
+
 			setPlayers(players => [...players, newPlayer])
 			state.onQuit(() => {
 				setPlayers(players => players.filter(p => p.state.id !== state.id))
@@ -58,8 +80,25 @@ export const GameStateProvider = ({ children }) => {
 			let newTime = stage === 'game' ? timer + 1 : timer - 1
 			if (newTime === 0) {
 				const nextStage = NEXT_STAGE[stage]
+				if (nextStage === 'lobby' || nextStage === 'countdown') {
+					players.forEach(p => {
+						p.state.setState('dead', false)
+						p.state.setState('pos', null)
+						p.state.setState('rot', null)
+					})
+				}
 				setStage(nextStage, true)
 				newTime = TIMER_STAGE[nextStage]
+			} else {
+				//Проверка на конец игры
+				if (stage === 'game') {
+					const playersAlive = players.filter(p => !p.state.getState('dead'))
+					if (playersAlive.length < (soloGame ? 1 : 2)) {
+						setStage('winner', true)
+						setWinner(playersAlive[0]?.state.state.profile, true)
+						newTime = TIMER_STAGE.winner
+					}
+				}
 			}
 			setTimer(newTime, true)
 		}, 1000)

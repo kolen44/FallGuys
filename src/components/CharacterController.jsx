@@ -7,11 +7,12 @@ import {
 	quat,
 	vec3,
 } from '@react-three/rapier'
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import { Vector3 } from 'three'
 import { Controls } from '../App'
 import { useGameState } from '../hooks/useGameState'
 import { Character } from './Character'
+import { FLOORS, FLOOR_HEIGHT } from './GameArena'
 
 const MOVEMENT_SPEED = 4.2
 const JUMP_FORCE = 8
@@ -23,6 +24,8 @@ export const CharacterController = ({
 	state,
 	...props
 }) => {
+	const isDead = state.getState('dead')
+	const [animation, setAnimation] = useState('idle')
 	const { stage } = useGameState()
 	const rb = useRef()
 	const inTheAir = useRef(true)
@@ -95,14 +98,14 @@ export const CharacterController = ({
 			get()[Controls.right] ||
 			(controls.isJoystickPressed() && joystickX < -0.1)
 		) {
-			rotVel.y += ROTATION_SPEED
+			rotVel.y -= ROTATION_SPEED
 		}
 
 		if (
 			get()[Controls.left] ||
 			(controls.isJoystickPressed() && joystickX > 0.1)
 		) {
-			rotVel.y -= ROTATION_SPEED
+			rotVel.y += ROTATION_SPEED
 		}
 
 		rb.current.setAngvel(rotVel)
@@ -131,10 +134,41 @@ export const CharacterController = ({
 		rb.current.setLinvel(vel)
 		state.setState('pos', rb.current.translation())
 		state.setState('rot', rb.current.rotation())
+
+		//Анимация
+		const movement = Math.abs(vel.x) + Math.abs(vel.z)
+		if (inTheAir.current && vel.y > 2) {
+			setAnimation('jump_up')
+			state.setState('animation', 'jump_up')
+		} else if (inTheAir.current && vel.y < -5) {
+			setAnimation('fall')
+			state.setState('animation', 'fall')
+		} else if (movement > 1 || inTheAir.current) {
+			setAnimation('run')
+			state.setState('animation', 'run')
+		} else {
+			setAnimation('idle')
+			state.setState('animation', 'idle')
+		}
+
+		if (
+			rb.current.translation().y < -FLOOR_HEIGHT * FLOORS.length &&
+			!state.getState('dead')
+		) {
+			state.setState('dead', true)
+			setState('lastDead', state.state.profile, true)
+		}
 	})
+
+	const startingPos = state.getState('startingPos')
+	if (isDead || !startingPos) {
+		return null
+	}
 	return (
 		<RigidBody
 			{...props}
+			position-x={startingPos.x}
+			position-z={startingPos.z}
 			colliders={false}
 			canSleep={false}
 			enabledRotations={[false, true, false]}
@@ -157,6 +191,7 @@ export const CharacterController = ({
 				color={state.state.profile.color}
 				name={state.state.profile.name}
 				position-y={0.2}
+				animation={animation}
 			/>
 			<CapsuleCollider args={[0.1, 0.38]} position={[0, 0.68, 0]} />
 		</RigidBody>
