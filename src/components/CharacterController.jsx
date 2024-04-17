@@ -7,6 +7,7 @@ import {
 	quat,
 	vec3,
 } from '@react-three/rapier'
+import { setState } from 'playroomkit'
 import { useRef, useState } from 'react'
 import { Vector3 } from 'three'
 import { Controls } from '../App'
