@@ -58,7 +58,7 @@ export function Hexagon({ color, hit, onHit, ...props }) {
 				<meshStandardMaterial
 					ref={hexagonMaterial}
 					{...materials.hexagon}
-					color={randomizedColor}
+					color={hit ? 'orange' : randomizedColor}
 					transparent
 				/>
 			</mesh>

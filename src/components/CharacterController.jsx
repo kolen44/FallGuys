@@ -1,6 +1,12 @@
 import { useKeyboardControls } from '@react-three/drei'
 import { useFrame } from '@react-three/fiber'
-import { CapsuleCollider, RigidBody, euler, quat } from '@react-three/rapier'
+import {
+	CapsuleCollider,
+	RigidBody,
+	euler,
+	quat,
+	vec3,
+} from '@react-three/rapier'
 import { useRef } from 'react'
 import { Vector3 } from 'three'
 import { Controls } from '../App'
@@ -22,10 +28,24 @@ export const CharacterController = ({
 	const inTheAir = useRef(true)
 	const landed = useRef(false)
 	const [_, get] = useKeyboardControls()
+	const cameraPosition = useRef()
+	const cameraLookAt = useRef()
 
 	useFrame(({ camera }) => {
 		if (stage === 'lobby' || stage !== 'game') {
 			return
+		}
+
+		if (player) {
+			const rbPosition = vec3(rb.current.translation())
+			if (!cameraLookAt.current) {
+				cameraLookAt.current = rbPosition
+			}
+			cameraLookAt.current.lerp(rbPosition, 0.05)
+			camera.lookAt(cameraLookAt.current)
+			const worldPos = rbPosition
+			cameraPosition.current.getWorldPosition(worldPos)
+			camera.position.lerp(worldPos, 0.05)
 		}
 
 		if (!player) {
@@ -91,7 +111,7 @@ export const CharacterController = ({
 		vel.applyEuler(eulerRoot)
 		//ПРОВЕРКА НАЖАЛ ЛИ ПОЛЬЗОВАТЕЛЬ ПРЫЖОК ПО КЛАВИШЕ (+ ПО КОНТРОЛЛЕРУ)
 		if (
-			(get()[controls.jump] || controls.isPressed('JUMP')) &&
+			(get()[Controls.jump] || controls.isPressed('Jump')) &&
 			!inTheAir.current &&
 			landed.current
 		) {
@@ -131,6 +151,7 @@ export const CharacterController = ({
 			name={player ? 'player' : 'other'}
 			gravityScale={stage === 'game' ? 2.5 : 0}
 		>
+			<group ref={cameraPosition} position={[0, 8, -16]}></group>
 			<Character
 				scale={0.42}
 				color={state.state.profile.color}
