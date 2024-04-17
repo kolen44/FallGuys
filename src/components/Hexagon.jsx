@@ -5,12 +5,11 @@ Command: npx gltfjsx@6.2.3 public/models/hexagon.glb -o src/components/Hexagon.j
 
 import { useGLTF } from '@react-three/drei'
 import { RigidBody } from '@react-three/rapier'
-import React, { useMemo, useRef } from 'react'
+import React, { useMemo } from 'react'
 import { Color } from 'three'
 import { randFloat } from 'three/src/math/MathUtils'
 
 export function Hexagon({ color, ...props }) {
-	const rb = useRef()
 	const { nodes, materials } = useGLTF('/models/hexagon.glb', 'draco/gltf/')
 
 	const randomizedColor = useMemo(() => {
@@ -19,15 +18,7 @@ export function Hexagon({ color, ...props }) {
 	}, [color])
 
 	return (
-		<RigidBody
-			{...props}
-			type={'fixed'}
-			name='hexagon'
-			colliders='hull'
-			canSleep={false}
-			enabledRotations={[false, true, false]}
-			ref={rb}
-		>
+		<RigidBody {...props} type={'fixed'} name='hexagon' colliders='hull'>
 			<mesh geometry={nodes.Hexagon.geometry} material={materials.hexagon}>
 				<meshStandardMaterial
 					{...materials.hexagon}
