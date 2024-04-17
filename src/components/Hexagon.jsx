@@ -8,19 +8,21 @@ import { useFrame } from '@react-three/fiber'
 import { RigidBody } from '@react-three/rapier'
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { Color } from 'three'
-import { MathUtils, randFloat } from 'three/src/math/MathUtils.js'
+import { MathUtils, randFloat, randInt } from 'three/src/math/MathUtils.js'
+import { useAudioManager } from '../hooks/useAudioManager'
 
 const TIME_AFTER_HIT = 600
 export function Hexagon({ color, hit, onHit, ...props }) {
+	const { playAudio } = useAudioManager()
 	const hexagonMaterial = useRef()
 	const { nodes, materials } = useGLTF('/models/hexagon.glb', 'draco/gltf/')
 	const [disabled, setDisabled] = useState(false)
-	const randomizedColor = useMemo(async () => {
+	const randomizedColor = useMemo(() => {
 		const alteredColor = new Color(color)
 		alteredColor.multiplyScalar(randFloat(0.5, 1.2))
 		return alteredColor
 	}, [color])
-	useFrame(async (_, delta) => {
+	useFrame((_, delta) => {
 		if (hit && !disabled) {
 			hexagonMaterial.current.opacity = MathUtils.lerp(
 				hexagonMaterial.current.opacity,
@@ -30,10 +32,11 @@ export function Hexagon({ color, hit, onHit, ...props }) {
 		}
 	})
 
-	useEffect(async () => {
+	useEffect(() => {
 		if (hit) {
 			setTimeout(() => {
 				setDisabled(true)
+				playAudio(`Pop${randInt(1, 5)}`)
 			}, TIME_AFTER_HIT)
 		}
 	}, [hit])

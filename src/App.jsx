@@ -4,6 +4,7 @@ import { Experience } from './components/Experience'
 import { KeyboardControls } from '@react-three/drei'
 import { Physics } from '@react-three/rapier'
 import { useMemo } from 'react'
+import { Rules } from './components/Modal'
 import { UI } from './components/UI'
 import { AudioManagerProvider } from './hooks/useAudioManager'
 import { GameStateProvider } from './hooks/useGameState'
@@ -44,6 +45,7 @@ function App() {
 	)
 	return (
 		<KeyboardControls map={map}>
+			<Rules />
 			<AudioManagerProvider>
 				<GameStateProvider>
 					<Canvas shadows camera={{ position: [0, 16, 10], fov: 42 }}>

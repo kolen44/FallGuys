@@ -11,6 +11,7 @@ import { setState } from 'playroomkit'
 import { useRef, useState } from 'react'
 import { Vector3 } from 'three'
 import { Controls } from '../App'
+import { useAudioManager } from '../hooks/useAudioManager'
 import { useGameState } from '../hooks/useGameState'
 import { Character } from './Character'
 import { FLOORS, FLOOR_HEIGHT } from './GameArena'
@@ -22,9 +23,12 @@ const vel = new Vector3()
 export const CharacterController = ({
 	player = false,
 	controls,
+	firstNonDeadPlayer = false,
 	state,
 	...props
 }) => {
+	const { audioEnabled, setAudioEnabled } = useAudioManager()
+	const { playAudio } = useAudioManager()
 	const isDead = state.getState('dead')
 	const [animation, setAnimation] = useState('idle')
 	const { stage } = useGameState()
@@ -35,12 +39,12 @@ export const CharacterController = ({
 	const cameraPosition = useRef()
 	const cameraLookAt = useRef()
 
-	useFrame(async ({ camera }) => {
+	useFrame(({ camera }) => {
 		if (stage === 'lobby' || stage !== 'game') {
 			return
 		}
 
-		if (player) {
+		if ((player && !isDead) || firstNonDeadPlayer) {
 			const rbPosition = vec3(rb.current.translation())
 			if (!cameraLookAt.current) {
 				cameraLookAt.current = rbPosition
@@ -97,14 +101,14 @@ export const CharacterController = ({
 
 		if (
 			get()[Controls.right] ||
-			(controls.isJoystickPressed() && joystickX < -0.1)
+			(controls.isJoystickPressed() && joystickX > -0.1)
 		) {
 			rotVel.y -= ROTATION_SPEED
 		}
 
 		if (
 			get()[Controls.left] ||
-			(controls.isJoystickPressed() && joystickX > 0.1)
+			(controls.isJoystickPressed() && joystickX < 0.1)
 		) {
 			rotVel.y += ROTATION_SPEED
 		}
@@ -158,6 +162,8 @@ export const CharacterController = ({
 		) {
 			state.setState('dead', true)
 			setState('lastDead', state.state.profile, true)
+
+			playAudio('Dead', true)
 		}
 	})
 

@@ -1,3 +1,4 @@
+import { getDiscordClient, openDiscordInviteDialog } from 'playroomkit'
 import { useAudioManager } from '../hooks/useAudioManager'
 import { useGameState } from '../hooks/useGameState'
 
@@ -32,7 +33,7 @@ export const UI = () => {
 				</h2>
 			)}
 
-			<img src='images/logo.png' className='absolute top-4 left-4 w-28' />
+			<img src='images/logo.png' className='absolute top-4 left-4 w-20' />
 			{stage === 'lobby' && (
 				<>
 					{host ? (
@@ -46,6 +47,14 @@ export const UI = () => {
 						<p className='italic text-white'>
 							Ожидание соединения для начала игры...
 						</p>
+					)}
+					{getDiscordClient() && (
+						<button
+							className='mt-4 pointer-events-auto bg-gradient-to-br from-orange-500 to-yellow-500 hover:opacity-80 transition-all duration-200 px-12 py-4 rounded-lg font-black text-xl text-white drop-shadow-lg'
+							onClick={openDiscordInviteDialog}
+						>
+							Пригласить друга✨
+						</button>
 					)}
 				</>
 			)}
